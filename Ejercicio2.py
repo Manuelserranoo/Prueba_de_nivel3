@@ -38,7 +38,9 @@ def main():
     cola.agregar_pedido(Pedido("Gran Conquistador", "616", "Debo encontrar a El que permanece en el universo 199999"))
     cola.agregar_pedido(Pedido("Solicitante 1", "1043", "Quiero conocer el multiverso donde Loki se convirtió en el rey de Asgard"))
     cola.agregar_pedido(Pedido("Solicitante 2", "838", "Necesito ayuda para detener al Carnicero de Dioses en mi universo"))
-
+    cola.agregar_pedido(Pedido("Solicitante 3", "616", "Quiero conocer el multiverso donde Loki se convirtió en el rey de Asgard"))
+    cola.agregar_pedido(Pedido("Solicitante 4", "1043", "Necesito ayuda para detener al Carnicero de Dioses en mi universo"))
+    cola.agregar_pedido(Pedido("Solicitante 5","212","El que permanece me ha pedido ayuda para detener a ironman"))
     bitacora = cola.atender_pedidos()
     for pedido in bitacora:
         print(pedido.nombre, pedido.multiverso, pedido.descripcion)

@@ -1,152 +1,199 @@
 import random
 
-class Nodo:
-    def __init__(self, valor):
-        self.valor = valor
-        self.izquierda = None
-        self.derecha = None
+class Node:
+    def __init__(self, data):
+        self.left = None
+        self.right = None
+        self.data = data
 
-class ArbolBST:
+class Tree:
     def __init__(self):
-        self.raiz = None
+        self.root = None
 
-    def insertar(self, valor):
-        if self.raiz is None:
-            self.raiz = Nodo(valor)
+    def insert(self, data):
+        if not self.root:
+            self.root = Node(data)
         else:
-            self._insertar(valor, self.raiz)
+            self._insert(data, self.root)
 
-    def _insertar(self, valor, nodo_actual):
-        if valor < nodo_actual.valor:
-            if nodo_actual.izquierda is None:
-                nodo_actual.izquierda = Nodo(valor)
+    def _insert(self, data, node):
+        if data < node.data:
+            if node.left is None:
+                node.left = Node(data)
             else:
-                self._insertar(valor, nodo_actual.izquierda)
-        elif valor > nodo_actual.valor:
-            if nodo_actual.derecha is None:
-                nodo_actual.derecha = Nodo(valor)
+                self._insert(data, node.left)
+        elif data > node.data:
+            if node.right is None:
+                node.right = Node(data)
             else:
-                self._insertar(valor, nodo_actual.derecha)
-        else:
-            # El valor ya está en el árbol
-            pass
+                self._insert(data, node.right)
 
-    def barrido_preorden(self):
-        if self.raiz is not None:
-            self._barrido_preorden(self.raiz)
+    def pre_order_traversal(self, node):
+        if node is not None:
+            print(node.data, end=" ")
+            self.pre_order_traversal(node.left)
+            self.pre_order_traversal(node.right)
 
-    def _barrido_preorden(self, nodo_actual):
-        if nodo_actual is not None:
-            print(nodo_actual.valor)
-            self._barrido_preorden(nodo_actual.izquierda)
-            self._barrido_preorden(nodo_actual.derecha)
+    def in_order_traversal(self, node):
+        if node is not None:
+            self.in_order_traversal(node.left)
+            print(node.data, end=" ")
+            self.in_order_traversal(node.right)
 
-    def barrido_inorden(self):
-        if self.raiz is not None:
-            self._barrido_inorden(self.raiz)
+    def post_order_traversal(self, node):
+        if node is not None:
+            self.post_order_traversal(node.left)
+            self.post_order_traversal(node.right)
+            print(node.data, end=" ")
 
-    def _barrido_inorden(self, nodo_actual):
-        if nodo_actual is not None:
-            self._barrido_inorden(nodo_actual.izquierda)
-            print(nodo_actual.valor)
-            self._barrido_inorden(nodo_actual.derecha)
+    def level_order_traversal(self, node):
+        if node is None:
+            return
 
-    def barrido_postorden(self):
-        if self.raiz is not None:
-            self._barrido_postorden(self.raiz)
+        queue = []
+        queue.append(node)
 
-    def _barrido_postorden(self, nodo_actual):
-        if nodo_actual is not None:
-            self._barrido_postorden(nodo_actual.izquierda)
-            self._barrido_postorden(nodo_actual.derecha)
-            print(nodo_actual.valor)
+        while len(queue) > 0:
+            current_node = queue.pop(0)
+            print(current_node.data, end=" ")
 
-    def barrido_por_nivel(self):
-        if self.raiz is not None:
-            cola = [self.raiz]
-            while cola:
-                nodo_actual = cola.pop(0)
-                print(nodo_actual.valor)
-                if nodo_actual.izquierda is not None:
-                    cola.append(nodo_actual.izquierda)
-                if nodo_actual.derecha is not None:
-                    cola.append(nodo_actual.derecha)
+            if current_node.left is not None:
+                queue.append(current_node.left)
 
-    def buscar(self, valor):
-        return self._buscar(valor, self.raiz)
+            if current_node.right is not None:
+                queue.append(current_node.right)
 
-    def _buscar(self, valor, nodo_actual):
-        if nodo_actual is None:
+    def search(self, node, data):
+        if node is None:
             return False
-        elif valor == nodo_actual.valor:
+        elif node.data == data:
             return True
-        elif valor < nodo_actual.valor:
-            return self._buscar(valor, nodo_actual.izquierda)
+        elif data < node.data:
+            return self.search(node.left, data)
         else:
-            return self._buscar(valor, nodo_actual.derecha)
+            return self.search(node.right, data)
 
-    def eliminar(self, valor):
-        if self.raiz is not None:
-            self.raiz = self._eliminar(valor, self.raiz)
+    def delete(self, data):
+        if self.root is not None:
+            self.root = self._delete(self.root, data)
 
-    def _eliminar(self, valor, nodo_actual):
-        if nodo_actual is None:
-            return nodo_actual
-        if valor < nodo_actual.valor:
-            nodo_actual.izquierda = self._eliminar(valor, nodo_actual.izquierda)
-        elif valor > nodo_actual.valor:
-            nodo_actual.derecha = self._eliminar(valor, nodo_actual.derecha)
+    def _delete(self, node, data):
+        if node is None:
+            return node
+
+        if data < node.data:
+            node.left = self._delete(node.left, data)
+        elif data > node.data:
+            node.right = self._delete(node.right, data)
         else:
-            if nodo_actual.izquierda is None:
-                return nodo_actual.derecha
-            elif nodo_actual.derecha is None:
-                return nodo_actual.izquierda
-            else:
-                nodo_actual.valor = self._minimo(nodo_actual.derecha)
-                nodo_actual.derecha = self._eliminar(nodo_actual.valor, nodo_actual.derecha)
-        return nodo_actual
-    
+            if node.left is None:
+                temp = node.right
+                node = None
+                return temp
+            elif node.right is None:
+                temp = node.left
+                node = None
+                return temp
+
+            temp = self.min_value_node(node.right)
+            node.data = temp.data
+            node.right = self._delete(node.right, temp.data)
+
+        return node
+
+    def min_value_node(self, node):
+        current = node
+
+        while current.left is not None:
+            current = current.left
+
+        return current
+
+    def sub_tree_height(self, node):
+        if node is None:
+            return 0
+
+        left_height = self.sub_tree_height(node.left)
+        right_height = self.sub_tree_height(node.right)
+
+        return max(left_height, right_height) + 1
+
+        def count_occurrences(self, node, data):
+        if node is None:
+            return 0
+
+        if node.data == data:
+            return 1 + self.count_occurrences(node.left, data) + self.count_occurrences(node.right, data)
+        elif data < node.data:
+            return self.count_occurrences(node.left, data)
+        else:
+            return self.count_occurrences(node.right, data)
+
+    def count_odd_even(self, node):
+        if node is None:
+            return (0, 0)
+
+        left_counts = self.count_odd_even(node.left)
+        right_counts = self.count_odd_even(node.right)
+
+        odd_count = left_counts[0] + right_counts[0]
+        even_count = left_counts[1] + right_counts[1]
+
+        if node.data % 2 == 0:
+            even_count += 1
+        else:
+            odd_count += 1
+
+        return (odd_count, even_count)
+
 def main():
-    print("Bienvenido al generador de números aleatorios.")
-    numeros = int(input("¿Cuantos números quieres generar? [1-20]: "))
-    modo = int(input("¿Cómo quieres redondear los números? [1]Al alza [2]A la baja [3]Normal: "))
-    lista_numeros = []
-    for i in range(numeros):
-        numero = random.uniform(0, 100)
-        if modo == 1:
-            redondeo = math.ceil(numero)
-        elif modo == 2:
-            redondeo = math.floor(numero)
-        else:
-            redondeo = round(numero)
-        print(f"Número: {numero}, redondeado: {redondeo}")
-        lista_numeros.append(redondeo)
-    print(lista_numeros)
-    arbol = ArbolBST()
-    for i in lista_numeros:
-        arbol.insertar(i)
-    print("Barrido preorden:")
-    arbol.barrido_preorden()
-    print("Barrido inorden:")
-    arbol.barrido_inorden()
-    print("Barrido postorden:")
-    arbol.barrido_postorden()
-    print("Barrido por nivel:")
-    arbol.barrido_por_nivel()
-    print("Buscar 5:")
-    print(arbol.buscar(5))
-    print("Buscar 100:")
-    print(arbol.buscar(100))
-    print("Eliminar 5:")
-    arbol.eliminar(5)
-    print("Barrido preorden:")
-    arbol.barrido_preorden()
-    print("Barrido inorden:")
-    arbol.barrido_inorden()
-    print("Barrido postorden:")
-    arbol.barrido_postorden()
-    print("Barrido por nivel:")
-    arbol.barrido_por_nivel()
+    tree = Tree()
+
+    # Cargar 1000 números aleatorios en el árbol
+    for i in range(1000):
+        tree.insert(random.randint(1, 10000))
+
+    # Realizar los barridos preorden, inorden, postorden y por nivel sobre el árbol generado
+    print("Pre-Order Traversal: ", end="")
+    tree.pre_order_traversal(tree.root)
+    print()
+    print("In-Order Traversal: ", end="")
+    tree.in_order_traversal(tree.root)
+    print()
+    print("Post-Order Traversal: ", end="")
+    tree.post_order_traversal(tree.root)
+    print()
+    print("Level-Order Traversal: ", end="")
+    tree.level_order_traversal(tree.root)
+    print()
+
+    # Determinar si un número está cargado en el árbol o no
+    search_num = random.randint(1, 10000)
+    if tree.search(tree.root, search_num):
+        print(f"{search_num} is in the tree.")
+    else:
+        print(f"{search_num} is not in the tree.")
+
+    # Eliminar tres valores del árbol
+    for i in range(3):
+        delete_num = random.randint(1, 10000)
+        tree.delete(delete_num)
+        print(f"{delete_num} has been deleted from the tree.")
+
+    # Determinar la altura del subárbol izquierdo y del subárbol derecho
+    left_subtree_height = tree.sub_tree_height(tree.root.left)
+    right_subtree_height = tree.sub_tree_height(tree.root.right)
+    print(f"Height of left subtree: {left_subtree_height}")
+    print(f"Height of right subtree: {right_subtree_height}")
+
+    # Determinar la cantidad de ocurrencias de un elemento en el árbol
+    occurrences_num = random.randint(1, 10000)
+    num_occurrences = tree.count_occurrences(tree.root, occurrences_num)
+    print(f"{occurrences_num} appears {num_occurrences} time(s) in the tree.")
+
+    # Contar cuántos números pares e impares hay en el árbol
+    odd_count, even_count = tree.count_odd_even(tree.root)
+    print(f"There are {odd_count} odd numbers and {even_count} even numbers in the tree.")
 
 if __name__ == "__main__":
     main()
