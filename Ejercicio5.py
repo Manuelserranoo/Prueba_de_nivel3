@@ -1,90 +1,113 @@
 import random
 
+# Definir la clase del nodo del árbol
 class Node:
-    def __init__(self, data):
+    def __init__(self, val=None):
+        self.val = val
         self.left = None
         self.right = None
-        self.data = data
 
-class Tree:
+# Definir la clase del árbol
+class BinaryTree:
     def __init__(self):
         self.root = None
 
-    def insert(self, data):
-        if not self.root:
-            self.root = Node(data)
+    # Método para agregar un nodo al árbol
+    def insert(self, val):
+        new_node = Node(val)
+        if self.root is None:
+            self.root = new_node
         else:
-            self._insert(data, self.root)
+            current = self.root
+            while True:
+                if val < current.val:
+                    if current.left is None:
+                        current.left = new_node
+                        break
+                    current = current.left
+                else:
+                    if current.right is None:
+                        current.right = new_node
+                        break
+                    current = current.right
 
-    def _insert(self, data, node):
-        if data < node.data:
-            if node.left is None:
-                node.left = Node(data)
-            else:
-                self._insert(data, node.left)
-        elif data > node.data:
-            if node.right is None:
-                node.right = Node(data)
-            else:
-                self._insert(data, node.right)
-
+    # Método para realizar el barrido preorden
     def pre_order_traversal(self, node):
-        if node is not None:
-            print(node.data, end=" ")
+        if node:
+            print(node.val, end=" ")
             self.pre_order_traversal(node.left)
             self.pre_order_traversal(node.right)
 
+    # Método para realizar el barrido inorden
     def in_order_traversal(self, node):
-        if node is not None:
+        if node:
             self.in_order_traversal(node.left)
-            print(node.data, end=" ")
+            print(node.val, end=" ")
             self.in_order_traversal(node.right)
 
+    # Método para realizar el barrido postorden
     def post_order_traversal(self, node):
-        if node is not None:
+        if node:
             self.post_order_traversal(node.left)
             self.post_order_traversal(node.right)
-            print(node.data, end=" ")
+            print(node.val, end=" ")
 
-    def level_order_traversal(self, node):
-        if node is None:
+    # Método para realizar el barrido por nivel
+    def level_order_traversal(self, root):
+        if root is None:
             return
-
         queue = []
-        queue.append(node)
-
-        while len(queue) > 0:
+        queue.append(root)
+        while queue:
             current_node = queue.pop(0)
-            print(current_node.data, end=" ")
-
-            if current_node.left is not None:
+            print(current_node.val, end=" ")
+            if current_node.left:
                 queue.append(current_node.left)
-
-            if current_node.right is not None:
+            if current_node.right:
                 queue.append(current_node.right)
 
-    def search(self, node, data):
-        if node is None:
-            return False
-        elif node.data == data:
-            return True
-        elif data < node.data:
-            return self.search(node.left, data)
+    # Método para buscar un valor en el árbol
+    def search(self, val):
+        current = self.root
+        while current:
+            if current.val == val:
+                return True
+            elif val < current.val:
+                current = current.left
+            else:
+                current = current.right
+        return False
+
+    # Método para eliminar un nodo del árbol
+    def delete(self, val):
+        if self.root is None:
+            return self.root
+        elif val < self.root.val:
+            self.root.left = self.delete_node(self.root.left, val)
+        elif val > self.root.val:
+            self.root.right = self.delete_node(self.root.right, val)
         else:
-            return self.search(node.right, data)
+            if self.root.left is None:
+                temp = self.root.right
+                self.root = None
+                return temp
+            elif self.root.right is None:
+                temp = self.root.left
+                self.root = None
+                return temp
+            temp = self.get_min_node(self.root.right)
+            self.root.val = temp.val
+            self.root.right = self.delete_node(self.root.right, temp.val)
+        return self.root
 
-    def delete(self, data):
-        if self.root is not None:
-            self.root = self._delete(self.root, data)
-
-    def _delete(self, node, data):
+    # Método auxiliar para eliminar un nodo del árbol
+    def delete_node(self, node, val):
         if node is None:
             return node
-
-        if data < node.data:
-            node.left = self._delete(node.left, data)
-        elif data > node.data:
-            node.right = self._delete(node.right, data)
+        if val < node.val:
+            node.left = self.delete_node(node.left, val)
+        elif val > node.val:
+            node.right = self.delete_node(node.right, val)
         else:
             if node.left is None:
                 temp = node.right
@@ -94,106 +117,87 @@ class Tree:
                 temp = node.left
                 node = None
                 return temp
-
-            temp = self.min_value_node(node.right)
-            node.data = temp.data
-            node.right = self._delete(node.right, temp.data)
-
+            temp = self.get_min_node(node.right)
+            node.val = temp.val
+            node.right = self.delete_node(node.right, temp.val)
         return node
 
-    def min_value_node(self, node):
+    # Método auxiliar para encontrar el nodo con el valor mínimo
+    def get_min_node(self, node):
         current = node
-
-        while current.left is not None:
+        while current.left:
             current = current.left
-
         return current
 
-    def sub_tree_height(self, node):
+    # Método para encontrar la altura del subárbol izquierdo
+    def left_subtree_height(self, node):
+        if node is None or node.left is None and node.right is None:
+            return 0
+        else:
+            return 1 + max(self.left_subtree_height(node.left), self.left_subtree_height(node.right))
+
+    # Método para encontrar la altura del subárbol derecho
+    def right_subtree_height(self, node):
+        if node is None or node.left is None and node.right is None:
+            return 0
+        else:
+            return 1 + max(self.right_subtree_height(node.left), self.right_subtree_height(node.right))
+
+    # Método para contar la cantidad de ocurrencias de un elemento en el árbol
+    def count_occurrences(self, val, node):
         if node is None:
             return 0
-
-        left_height = self.sub_tree_height(node.left)
-        right_height = self.sub_tree_height(node.right)
-
-        return max(left_height, right_height) + 1
-
-        def count_occurrences(self, node, data):
-        if node is None:
-            return 0
-
-        if node.data == data:
-            return 1 + self.count_occurrences(node.left, data) + self.count_occurrences(node.right, data)
-        elif data < node.data:
-            return self.count_occurrences(node.left, data)
+        if node.val == val:
+            return 1 + self.count_occurrences(val, node.left) + self.count_occurrences(val, node.right)
+        elif val < node.val:
+            return self.count_occurrences(val, node.left)
         else:
-            return self.count_occurrences(node.right, data)
+            return self.count_occurrences(val, node.right)
 
-    def count_odd_even(self, node):
+    # Método para contar la cantidad de números pares e impares en el árbol
+    def count_parity(self, node, even=0, odd=0):
         if node is None:
-            return (0, 0)
-
-        left_counts = self.count_odd_even(node.left)
-        right_counts = self.count_odd_even(node.right)
-
-        odd_count = left_counts[0] + right_counts[0]
-        even_count = left_counts[1] + right_counts[1]
-
-        if node.data % 2 == 0:
-            even_count += 1
+            return even, odd
+        if node.val % 2 == 0:
+            even += 1
         else:
-            odd_count += 1
-
-        return (odd_count, even_count)
-
-def main():
-    tree = Tree()
-
-    # Cargar 1000 números aleatorios en el árbol
+            odd += 1
+        even, odd = self.count_parity(node.left, even, odd)
+        even, odd = self.count_parity(node.right, even, odd)
+        return even, odd
+if __name__ == "__main__":
+    # Crear un árbol binario y cargar 1000 números aleatorios
+    binary_tree = BinaryTree()
     for i in range(1000):
-        tree.insert(random.randint(1, 10000))
+        binary_tree.insert(random.randint(0, 10000))
 
-    # Realizar los barridos preorden, inorden, postorden y por nivel sobre el árbol generado
-    print("Pre-Order Traversal: ", end="")
-    tree.pre_order_traversal(tree.root)
-    print()
-    print("In-Order Traversal: ", end="")
-    tree.in_order_traversal(tree.root)
-    print()
-    print("Post-Order Traversal: ", end="")
-    tree.post_order_traversal(tree.root)
-    print()
-    print("Level-Order Traversal: ", end="")
-    tree.level_order_traversal(tree.root)
-    print()
+    # Realizar los barridos del árbol
+    print("Preorden: ")
+    binary_tree.pre_order_traversal(binary_tree.root)
+    print("\nInorden: ")
+    binary_tree.in_order_traversal(binary_tree.root)
+    print("\nPostorden: ")
+    binary_tree.post_order_traversal(binary_tree.root)
+    print("\nPor nivel: ")
+    binary_tree.level_order_traversal(binary_tree.root)
 
-    # Determinar si un número está cargado en el árbol o no
-    search_num = random.randint(1, 10000)
-    if tree.search(tree.root, search_num):
-        print(f"{search_num} is in the tree.")
-    else:
-        print(f"{search_num} is not in the tree.")
+    # Buscar un número en el árbol
+        # Contar la cantidad de ocurrencias de un número en el árbol
+    val = 5000
+    count = binary_tree.count_occurrences(val, binary_tree.root)
+    print("\nEl valor {} aparece {} veces en el árbol.".format(val, count))
 
     # Eliminar tres valores del árbol
-    for i in range(3):
-        delete_num = random.randint(1, 10000)
-        tree.delete(delete_num)
-        print(f"{delete_num} has been deleted from the tree.")
+    binary_tree.delete(5000)
+    binary_tree.delete(6000)
+    binary_tree.delete(7000)
 
-    # Determinar la altura del subárbol izquierdo y del subárbol derecho
-    left_subtree_height = tree.sub_tree_height(tree.root.left)
-    right_subtree_height = tree.sub_tree_height(tree.root.right)
-    print(f"Height of left subtree: {left_subtree_height}")
-    print(f"Height of right subtree: {right_subtree_height}")
+    # Encontrar la altura del subárbol izquierdo y derecho
+    left_height = binary_tree.left_subtree_height(binary_tree.root)
+    right_height = binary_tree.right_subtree_height(binary_tree.root)
+    print("\nLa altura del subárbol izquierdo es {} y la altura del subárbol derecho es {}.".format(left_height, right_height))
 
-    # Determinar la cantidad de ocurrencias de un elemento en el árbol
-    occurrences_num = random.randint(1, 10000)
-    num_occurrences = tree.count_occurrences(tree.root, occurrences_num)
-    print(f"{occurrences_num} appears {num_occurrences} time(s) in the tree.")
+    # Contar la cantidad de números pares e impares en el árbol
+    even_count, odd_count = binary_tree.count_parity(binary_tree.root)
+    print("\nEl árbol tiene {} números pares y {} números impares.".format(even_count, odd_count))
 
-    # Contar cuántos números pares e impares hay en el árbol
-    odd_count, even_count = tree.count_odd_even(tree.root)
-    print(f"There are {odd_count} odd numbers and {even_count} even numbers in the tree.")
-
-if __name__ == "__main__":
-    main()
