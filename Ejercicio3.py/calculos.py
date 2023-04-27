@@ -1,4 +1,4 @@
-from Ejercicio3 import suma, resta, producto, division
+from operaciones import suma, resta, producto, division
 
 a, b, c, d = (10, 5, 0, "Hola")
 
